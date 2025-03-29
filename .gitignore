@@ -41,7 +41,6 @@ logs/
 *.log
 
 # 환경 설정
-application.yml
 application.properties
 .env
 
