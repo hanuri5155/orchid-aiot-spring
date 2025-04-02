@@ -6,7 +6,7 @@ COPY --chown=gradle:gradle . /home/gradle/project
 WORKDIR /home/gradle/project
 
 # 빌드 실행 (jar 생성)
-RUN gradle build --no-daemon -x test
+RUN gradle build --no-daemon
 
 # 2. 실행 전용 베이스 이미지
 FROM openjdk:17
