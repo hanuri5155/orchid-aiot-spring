@@ -1,8 +1,11 @@
 # 1. Gradle로 빌드하기 위한 베이스 이미지
 FROM gradle:7.6.2-jdk17 AS builder
 
-# gradle 사용자로 설정 (권한 문제 방지)
+# gradle 사용자로 설정
 USER gradle
+
+# 캐시 클리어
+RUN rm -rf /home/gradle/.gradle/caches/
 
 # 프로젝트 복사 및 의존성 캐싱
 COPY --chown=gradle:gradle . /home/gradle/project
