@@ -1,5 +1,5 @@
 # 1. Gradle로 빌드하기 위한 베이스 이미지
-FROM gradle:8.5-jdk21 AS builder
+FROM gradle:8.5.0-jdk17 AS builder
 
 # Gradle 캐시 권한 문제 대응
 RUN rm -rf /home/gradle/.gradle/caches && \
@@ -17,7 +17,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew build --no-daemon -x test
 
 # 2. 실행 전용 베이스 이미지
-FROM openjdk:21
+FROM openjdk:17
 
 # 빌드된 jar 복사
 COPY --from=builder /home/gradle/project/build/libs/*.jar app.jar
