@@ -1,5 +1,5 @@
 # 1. Gradle로 빌드하기 위한 베이스 이미지
-FROM gradle:8.4-jdk21 AS builder
+FROM gradle:8.5-jdk21 AS builder
 
 # Gradle 캐시 권한 문제 대응
 RUN rm -rf /home/gradle/.gradle/caches && \
