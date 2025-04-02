@@ -1,24 +1,21 @@
 # 1. Gradle로 빌드하기 위한 베이스 이미지
 FROM gradle:7.6.2-jdk17 AS builder
 
-# gradle 사용자로 설정
+# root 권한으로 gradle 캐시 디렉토리 권한 처리
+USER root
+RUN mkdir -p /home/gradle/.gradle/caches && chmod -R 777 /home/gradle/.gradle
+
+# gradle 사용자로 변경
 USER gradle
 
-# 캐시 클리어
-RUN rm -rf /home/gradle/.gradle/caches/
-
-# 프로젝트 복사 및 의존성 캐싱
+# 프로젝트 복사
 COPY --chown=gradle:gradle . /home/gradle/project
 WORKDIR /home/gradle/project
 
-# 빌드 실행 (jar 생성)
+# 빌드 실행
 RUN gradle build --no-daemon
 
-# 2. 실행 전용 베이스 이미지
+# 2. 실행 전용 이미지
 FROM openjdk:17
-
-# 빌드된 jar 복사
 COPY --from=builder /home/gradle/project/build/libs/*.jar app.jar
-
-# 실행
 ENTRYPOINT ["java", "-jar", "/app.jar"]
