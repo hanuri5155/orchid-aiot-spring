@@ -31,7 +31,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/orchid?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     networks:
       - orchid-net
