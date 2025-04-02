@@ -1,5 +1,5 @@
 # 1. Gradle로 빌드하기 위한 베이스 이미지
-FROM gradle:7.6.2-jdk17 AS builder
+FROM gradle:7.6.4-jdk17 AS build
 
 # 권한 문제 해결
 RUN rm -rf /home/gradle/.gradle/caches && \
