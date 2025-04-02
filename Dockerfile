@@ -9,6 +9,11 @@ RUN rm -rf /home/gradle/.gradle/caches && \
 # 프로젝트 복사 및 빌드
 COPY . /home/gradle/project
 WORKDIR /home/gradle/project
+
+# gradlew 실행 권한 부여
+RUN chmod +x ./gradlew
+
+# 빌드 실행
 RUN ./gradlew build --no-daemon -x test
 
 # 2. 실행 전용 베이스 이미지
