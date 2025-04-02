@@ -17,7 +17,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew build --no-daemon -x test
 
 # 2. 실행 전용 베이스 이미지
-FROM openjdk:17
+FROM openjdk:21
 
 # 빌드된 jar 복사
 COPY --from=builder /home/gradle/project/build/libs/*.jar app.jar
