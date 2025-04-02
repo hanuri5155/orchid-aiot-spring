@@ -1,0 +1,28 @@
+name: Deploy Spring Boot to OCI Ubuntu
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to OCI Server
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST }} '
+          cd ~/orchid-aiot-spring && 
+          git pull origin main && 
+          docker compose down && 
+          docker compose up -d --build
+        '
