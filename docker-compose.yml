@@ -35,9 +35,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     networks:
       - orchid-net
+    volumes:
+      - gradle-cache:/home/gradle/.gradle
 
 volumes:
   mysql-data:
+  gradle-cache:
 
 networks:
   orchid-net:

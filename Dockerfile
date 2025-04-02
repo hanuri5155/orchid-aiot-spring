@@ -14,7 +14,7 @@ WORKDIR /home/gradle/project
 RUN chmod +x ./gradlew
 
 # 빌드 실행
-RUN ./gradlew build --no-daemon -x test
+RUN ./gradlew build --no-daemon -x test --build-cache
 
 # 2. 실행 전용 베이스 이미지
 FROM openjdk:17
