@@ -22,6 +22,9 @@ RUN ./gradlew dependencies --no-daemon --build-cache
 # 전체 프로젝트 복사 (이 시점에만 캐시 무효화됨)
 COPY . /home/gradle/project
 
+# gradlew 실행 권한 재부여
+RUN chmod +x ./gradlew
+
 # 실제 빌드 수행
 RUN ./gradlew build --no-daemon -x test --build-cache
 
