@@ -26,14 +26,14 @@ COPY . /home/gradle/project
 # 다시 gradlew 실행 권한 부여 (덮어쓰기 보완!)
 RUN chmod +x ./gradlew
 
-# 빌드 실행 (테스트 제외)
-RUN ./gradlew build --no-daemon -x test --build-cache
+# 실행 가능한 Spring Boot JAR만 빌드(테스트 제외)
+RUN ./gradlew bootJar --no-daemon -x test --build-cache
 
 # 2. 실행 전용 베이스 이미지
 FROM openjdk:17
 
 # 빌드된 jar 복사
-COPY --from=builder /home/gradle/project/build/libs/*.jar app.jar
+COPY --from=builder /home/gradle/project/build/libs/app.jar /app.jar
 
 # 실행
 ENTRYPOINT ["java", "-jar", "/app.jar"]

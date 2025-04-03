@@ -38,6 +38,11 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+// 일반 jar 비활성화 (충돌 방지)
+jar {
+	enabled = false
+}
+
 bootJar {
 	archiveFileName = 'app.jar'
 	mainClass = 'com.orchid.springbackend.SpringBackendApplication'
