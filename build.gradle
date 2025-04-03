@@ -40,4 +40,5 @@ tasks.named('test') {
 
 bootJar {
 	archiveFileName = 'app.jar'
+	mainClass = 'com.orchid.springbackend.SpringBackendApplication'
 }
