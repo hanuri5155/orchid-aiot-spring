@@ -23,6 +23,9 @@ RUN ./gradlew dependencies --no-daemon --build-cache
 # 전체 프로젝트 복사
 COPY . /home/gradle/project
 
+# 다시 gradlew 실행 권한 부여 (덮어쓰기 보완!)
+RUN chmod +x ./gradlew
+
 # 빌드 실행 (테스트 제외)
 RUN ./gradlew build --no-daemon -x test --build-cache
 
