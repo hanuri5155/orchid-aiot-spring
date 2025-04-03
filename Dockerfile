@@ -6,14 +6,23 @@ RUN rm -rf /home/gradle/.gradle/caches && \
     mkdir -p /home/gradle/.gradle/caches && \
     chmod -R 777 /home/gradle/.gradle
 
-# 프로젝트 복사 및 빌드
-COPY . /home/gradle/project
+# 빌드에 필요한 설정 파일 먼저 복사
+COPY build.gradle settings.gradle gradlew /home/gradle/project/
+COPY gradle /home/gradle/project/gradle
+
+# 작업 디렉토리 설정
 WORKDIR /home/gradle/project
 
 # gradlew 실행 권한 부여
 RUN chmod +x ./gradlew
 
-# 빌드 실행
+# 의존성만 먼저 캐싱 (속도 핵심!)
+RUN ./gradlew dependencies --no-daemon --build-cache
+
+# 전체 프로젝트 복사 (이 시점에만 캐시 무효화됨)
+COPY . /home/gradle/project
+
+# 실제 빌드 수행
 RUN ./gradlew build --no-daemon -x test --build-cache
 
 # 2. 실행 전용 베이스 이미지
