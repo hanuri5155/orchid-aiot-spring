@@ -20,7 +20,7 @@ jobs:
 
     - name: Deploy to OCI Server
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST }} '
+        ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST }} '
           cd ~/orchid-aiot-spring && 
           git pull origin main && 
           docker compose down && 
