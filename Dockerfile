@@ -6,6 +6,9 @@ RUN rm -rf /home/gradle/.gradle/caches && \
     mkdir -p /home/gradle/.gradle/caches && \
     chmod -R 777 /home/gradle/.gradle
 
+# Gradle 실행 시 JVM 메모리 사용량 제한 (최대 512MB)
+ENV GRADLE_OPTS="-Xmx512m -Dorg.gradle.daemon=false"
+
 # gradlew만 먼저 복사하고 실행 권한 부여
 COPY gradlew /home/gradle/project/
 RUN chmod +x /home/gradle/project/gradlew
