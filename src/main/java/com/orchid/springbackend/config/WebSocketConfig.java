@@ -18,6 +18,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-sensor") // Flutter와 연결될 엔드포인트
-                .setAllowedOriginPatterns("*"); // CORS 허용.
+                .setAllowedOriginPatterns("*") // CORS 허용
+                .withSockJS();
     }
 }
