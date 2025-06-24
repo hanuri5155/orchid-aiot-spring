@@ -7,10 +7,10 @@ import lombok.Setter;
 @Setter
 public class SensorDataDto {
     private String deviceId;
-    private float temperature;
-    private float humidity;
-    private float soilMoisture;
-    private float npkN;
-    private float npkP;
-    private float npkK;
+    private double temperature;
+    private double humidity;
+    private double soilTemperature;
+    private double soilMoisture;
+    private double soilEC;
+    private double soilPH;
 }
