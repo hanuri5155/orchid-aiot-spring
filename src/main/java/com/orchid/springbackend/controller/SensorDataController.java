@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/sensor")
 public class SensorDataController {
-
+    // 테스트
     private final SensorDataRepository repository;
 
     public SensorDataController(SensorDataRepository repository) {
