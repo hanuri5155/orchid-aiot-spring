@@ -1,15 +1,16 @@
-name: Build and Deploy Spring Boot
+name: Deploy Spring Boot to OCI Ubuntu
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       # Gradle 캐시 추가
@@ -23,21 +24,26 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
-      - name: gradlew 권한 부여
+      # gradlew 실행 권한
+      - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: gradle build
-        run: ./gradlew build
+      # 테스트 생략한 빌드
+      - name: Gradle bootJar build (no test)
+        run: ./gradlew bootJar
 
-      - name: build를 서버로 이동
-        run: |
-          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" ./build/libs/ \
-          ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/home/ubuntu/orchid-aiot-spring/build/libs
+      # SSH 설정
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: 서버에 접속해 docker-compose 재시작
+      # 서버 접속 및 배포
+      - name: Deploy to OCI Server
         run: |
-          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
-            cd /home/ubuntu/orchid-aiot-spring
-            docker-compose down
-            docker-compose up -d --build
-          EOF
+          ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST }} '
+            cd ~/orchid-aiot-spring && 
+            git pull origin main && 
+            docker compose down && 
+            docker compose up -d --build
+          '
