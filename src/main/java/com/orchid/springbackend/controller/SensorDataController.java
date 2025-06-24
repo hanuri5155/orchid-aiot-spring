@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -41,7 +42,7 @@ public class SensorDataController {
         return ResponseEntity.ok().build(); // 200 OK 응답
     }
 
-    // --- 새로 추가되는 부분: 최신 센서 데이터 조회 API ---
+
     @GetMapping("/latest") // GET 요청으로 /api/sensor/latest 경로에 매핑됩니다.
     public ResponseEntity<SensorDataDto> getLatestSensorData() {
         Optional<SensorData> latestDataOptional = repository.findTopByOrderByRecordedAtDesc();
@@ -49,7 +50,7 @@ public class SensorDataController {
         if (latestDataOptional.isPresent()) {
             SensorData latestData = latestDataOptional.get();
 
-            // SensorData 엔티티를 클라이언트에게 보낼 SensorDataDto로 변환합니다.
+            // SensorData 엔티티를 클라이언트에게 보낼 SensorDataDto로 변환
             SensorDataDto dto = new SensorDataDto();
             dto.setDeviceId(latestData.getDeviceId());
             dto.setTemperature(latestData.getTemperature());
@@ -58,9 +59,11 @@ public class SensorDataController {
             dto.setSoilMoisture(latestData.getSoilMoisture());
             dto.setSoilEC(latestData.getSoilEC());
             dto.setSoilPH(latestData.getSoilPH());
-
-            // 만약 SensorDataDto에 recordedAt 필드를 추가했다면 아래도 포함
-            // dto.setRecordedAt(latestData.getRecordedAt());
+            dto.setLastWatered(latestData.getLastWatered());
+            dto.setLastLedOn(latestData.getLastLedOn());
+            dto.setAlertSoilDry(latestData.isAlertSoilDry()); // boolean getter는 is필드명
+            dto.setAlertLightLow(latestData.isAlertLightLow());
+            dto.setRecordedAt(latestData.getRecordedAt());
 
             return ResponseEntity.ok(dto); // 200 OK 상태 코드와 함께 변환된 DTO 응답
         } else {
@@ -69,4 +72,55 @@ public class SensorDataController {
 
     }
 
+    // 수동 물 공급 명령 API (POST /api/sensor/control/water)
+    @PostMapping("/control/water")
+    public ResponseEntity<String> controlWater(@RequestParam String deviceId) {
+        System.out.println("DEBUG: Received water control command for device: " + deviceId);
+        // ⭐ 여기에 실제 라즈베리파이 또는 장치 제어 로직을 구현합니다. ⭐
+        // 예: MQTT 메시지 발행, 다른 IoT 플랫폼 API 호출 등 (이 예시에서는 단순히 로그를 출력)
+
+        // Optional: DB에 마지막 물 공급 시간 업데이트 (가장 최근 센서 데이터를 찾아 업데이트)
+        repository.findTopByOrderByRecordedAtDesc().ifPresent(sd -> {
+            sd.setLastWatered(LocalDateTime.now());
+            repository.save(sd); // 변경 사항을 DB에 저장
+            // WebSocket으로 이 업데이트된 센서 데이터를 브로드캐스트하여 앱에 실시간 반영
+            messagingTemplate.convertAndSend("/topic/sensor", convertToDto(sd));
+        });
+
+        return ResponseEntity.ok("물 공급 명령 전송 완료.");
+    }
+
+    // 수동 LED 제어 명령 API (POST /api/sensor/control/led)
+    // LED 상태 (켜기/끄기)를 boolean 값으로 받음
+    @PostMapping("/control/led")
+    public ResponseEntity<String> controlLed(@RequestParam String deviceId, @RequestParam boolean state) {
+        System.out.println("DEBUG: Received LED control command for device: " + deviceId + ", state: " + state);
+        // 여기에 실제 라즈베리파이 또는 장치 제어 로직을 구현해야함
+        // 예: MQTT 메시지 발행, 다른 IoT 플랫폼 API 호출 등
+
+        // Optional: DB에 마지막 LED 켜진 시간 업데이트 (켜질 때만) 및 WebSocket 브로드캐스트
+        if (state) { // LED가 켜질 때만 기록
+            repository.findTopByOrderByRecordedAtDesc().ifPresent(sd -> {
+                sd.setLastLedOn(LocalDateTime.now());
+                repository.save(sd); // 변경 사항을 DB에 저장
+                messagingTemplate.convertAndSend("/topic/sensor", convertToDto(sd));
+            });
+        }
+
+        return ResponseEntity.ok("LED 명령 전송 완료. 상태: " + (state ? "켜짐" : "꺼짐"));
+    }
+
+    private SensorDataDto convertToDto(SensorData entity) {
+        SensorDataDto dto = new SensorDataDto();
+        dto.setDeviceId(entity.getDeviceId());
+        dto.setTemperature(entity.getTemperature());
+        dto.setHumidity(entity.getHumidity());
+        dto.setSoilMoisture(entity.getSoilMoisture());
+        dto.setRecordedAt(entity.getRecordedAt());
+        dto.setLastWatered(entity.getLastWatered());
+        dto.setLastLedOn(entity.getLastLedOn());
+        dto.setAlertSoilDry(entity.isAlertSoilDry());
+        dto.setAlertLightLow(entity.isAlertLightLow());
+        return dto;
+    }
 }

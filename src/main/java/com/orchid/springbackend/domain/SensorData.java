@@ -27,6 +27,11 @@ public class SensorData {
 
     private LocalDateTime recordedAt;
 
+    private LocalDateTime lastWatered; // 마지막 물 공급 시간
+    private LocalDateTime lastLedOn;   // 마지막 LED 켜진 시간
+    private boolean alertSoilDry;    // 토양 건조 경고
+    private boolean alertLightLow;   // 빛 부족 경고
+
     @PrePersist
     protected void onCreate() {
         this.recordedAt = LocalDateTime.now();

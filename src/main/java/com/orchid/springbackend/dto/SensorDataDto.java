@@ -16,4 +16,8 @@ public class SensorDataDto {
     private double soilEC;
     private double soilPH;
     private LocalDateTime recordedAt;
+    private LocalDateTime lastWatered;
+    private LocalDateTime lastLedOn;
+    private boolean alertSoilDry;
+    private boolean alertLightLow;
 }
