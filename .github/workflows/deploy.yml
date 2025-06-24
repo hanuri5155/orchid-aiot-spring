@@ -1,28 +1,43 @@
-name: Deploy Spring Boot to OCI Ubuntu
+name: Build and Deploy Spring Boot
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # Gradle 캐시 추가
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
-    - name: Deploy to OCI Server
-      run: |
-        ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o StrictHostKeyChecking=no ubuntu@${{ secrets.SSH_HOST }} '
-          cd ~/orchid-aiot-spring && 
-          git pull origin main && 
-          docker compose down && 
-          docker compose up -d --build
-        '
+      - name: gradlew 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: gradle build
+        run: ./gradlew build
+
+      - name: build를 서버로 이동
+        run: |
+          rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" ./build/libs/ \
+          ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/home/ubuntu/orchid-aiot-spring/build/libs
+
+      - name: 서버에 접속해 docker-compose 재시작
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << EOF
+            cd /home/ubuntu/orchid-aiot-spring
+            docker-compose down
+            docker-compose up -d --build
+          EOF
