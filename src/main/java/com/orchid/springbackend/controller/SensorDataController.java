@@ -4,6 +4,7 @@ import com.orchid.springbackend.domain.SensorData;
 import com.orchid.springbackend.dto.SensorDataDto;
 import com.orchid.springbackend.repository.SensorDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,6 @@ public class SensorDataController {
         return ResponseEntity.ok().build(); // 200 OK 응답
     }
 
-
     @GetMapping("/latest") // GET 요청으로 /api/sensor/latest 경로에 매핑됩니다.
     public ResponseEntity<SensorDataDto> getLatestSensorData() {
         Optional<SensorData> latestDataOptional = repository.findTopByOrderByRecordedAtDesc();
@@ -76,38 +76,68 @@ public class SensorDataController {
     @PostMapping("/control/water")
     public ResponseEntity<String> controlWater(@RequestParam String deviceId) {
         System.out.println("DEBUG: Received water control command for device: " + deviceId);
-        // ⭐ 여기에 실제 라즈베리파이 또는 장치 제어 로직을 구현합니다. ⭐
-        // 예: MQTT 메시지 발행, 다른 IoT 플랫폼 API 호출 등 (이 예시에서는 단순히 로그를 출력)
 
-        // Optional: DB에 마지막 물 공급 시간 업데이트 (가장 최근 센서 데이터를 찾아 업데이트)
-        repository.findTopByOrderByRecordedAtDesc().ifPresent(sd -> {
-            sd.setLastWatered(LocalDateTime.now());
-            repository.save(sd); // 변경 사항을 DB에 저장
-            // WebSocket으로 이 업데이트된 센서 데이터를 브로드캐스트하여 앱에 실시간 반영
-            messagingTemplate.convertAndSend("/topic/sensor", convertToDto(sd));
-        });
+        String topic = "commands/" + deviceId + "/water"; // 제어 토픽 (예: commands/ORCHID_CONTROL_001/water)
+        String messagePayload = "{\"action\": \"start_watering\", \"duration\": 10}"; // 10초간 물 공급 (예시)
 
-        return ResponseEntity.ok("물 공급 명령 전송 완료.");
+        try {
+            // ⭐ 실제 MQTT 메시지 발행 로직 ⭐
+            // if (mqttClient != null && mqttClient.isConnected()) {
+            //     mqttClient.publish(topic, new MqttMessage(messagePayload.getBytes()));
+            //     System.out.println("MQTT: Water command published to topic " + topic);
+            // } else {
+            //     System.err.println("MQTT client not connected. Water command failed.");
+            //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("MQTT client not ready.");
+            // }
+
+            // ... (DB 업데이트 및 WebSocket 브로드캐스트 로직은 동일) ...
+            repository.findTopByOrderByRecordedAtDesc().ifPresent(sd -> {
+                sd.setLastWatered(LocalDateTime.now());
+                repository.save(sd);
+                messagingTemplate.convertAndSend("/topic/sensor", convertToDto(sd));
+            });
+
+            return ResponseEntity.ok("물 공급 명령 전송 완료.");
+        } catch (Exception e) {
+            System.err.println("Error publishing MQTT water command: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("물 공급 명령 실패: " + e.getMessage());
+        }
     }
+
 
     // 수동 LED 제어 명령 API (POST /api/sensor/control/led)
     // LED 상태 (켜기/끄기)를 boolean 값으로 받음
     @PostMapping("/control/led")
     public ResponseEntity<String> controlLed(@RequestParam String deviceId, @RequestParam boolean state) {
         System.out.println("DEBUG: Received LED control command for device: " + deviceId + ", state: " + state);
-        // 여기에 실제 라즈베리파이 또는 장치 제어 로직을 구현해야함
-        // 예: MQTT 메시지 발행, 다른 IoT 플랫폼 API 호출 등
 
-        // Optional: DB에 마지막 LED 켜진 시간 업데이트 (켜질 때만) 및 WebSocket 브로드캐스트
-        if (state) { // LED가 켜질 때만 기록
-            repository.findTopByOrderByRecordedAtDesc().ifPresent(sd -> {
-                sd.setLastLedOn(LocalDateTime.now());
-                repository.save(sd); // 변경 사항을 DB에 저장
-                messagingTemplate.convertAndSend("/topic/sensor", convertToDto(sd));
-            });
+        String topic = "commands/" + deviceId + "/led"; // 제어 토픽 (예: commands/ORCHID_CONTROL_001/led)
+        String messagePayload = "{\"action\": \"" + (state ? "turn_on" : "turn_off") + "\"}";
+
+        try {
+            // ⭐ 실제 MQTT 메시지 발행 로직 ⭐
+            // if (mqttClient != null && mqttClient.isConnected()) {
+            //     mqttClient.publish(topic, new MqttMessage(messagePayload.getBytes()));
+            //     System.out.println("MQTT: LED command published to topic " + topic);
+            // } else {
+            //     System.err.println("MQTT client not connected. LED command failed.");
+            //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("MQTT client not ready.");
+            // }
+
+            // ... (DB 업데이트 및 WebSocket 브로드캐스트 로직은 동일) ...
+            if (state) {
+                repository.findTopByOrderByRecordedAtDesc().ifPresent(sd -> {
+                    sd.setLastLedOn(LocalDateTime.now());
+                    repository.save(sd);
+                    messagingTemplate.convertAndSend("/topic/sensor", convertToDto(sd));
+                });
+            }
+
+            return ResponseEntity.ok("LED 명령 전송 완료. 상태: " + (state ? "켜짐" : "꺼짐"));
+        } catch (Exception e) {
+            System.err.println("Error publishing MQTT LED command: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("LED 명령 실패: " + e.getMessage());
         }
-
-        return ResponseEntity.ok("LED 명령 전송 완료. 상태: " + (state ? "켜짐" : "꺼짐"));
     }
 
     private SensorDataDto convertToDto(SensorData entity) {
