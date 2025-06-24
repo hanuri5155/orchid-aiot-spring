@@ -15,5 +15,5 @@ public class SensorDataDto {
     private double soilMoisture;
     private double soilEC;
     private double soilPH;
-    private LocalDateTime recordedAt; // 새로 추가된 필드
+    private LocalDateTime recordedAt;
 }
