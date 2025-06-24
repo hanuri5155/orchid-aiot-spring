@@ -81,7 +81,7 @@ public class SensorDataController {
         String messagePayload = "{\"action\": \"start_watering\", \"duration\": 10}"; // 10초간 물 공급 (예시)
 
         try {
-            // ⭐ 실제 MQTT 메시지 발행 로직 ⭐
+            // 실제 MQTT 메시지 발행 로직
             // if (mqttClient != null && mqttClient.isConnected()) {
             //     mqttClient.publish(topic, new MqttMessage(messagePayload.getBytes()));
             //     System.out.println("MQTT: Water command published to topic " + topic);
@@ -115,7 +115,7 @@ public class SensorDataController {
         String messagePayload = "{\"action\": \"" + (state ? "turn_on" : "turn_off") + "\"}";
 
         try {
-            // ⭐ 실제 MQTT 메시지 발행 로직 ⭐
+            // 실제 MQTT 메시지 발행 로직
             // if (mqttClient != null && mqttClient.isConnected()) {
             //     mqttClient.publish(topic, new MqttMessage(messagePayload.getBytes()));
             //     System.out.println("MQTT: LED command published to topic " + topic);
