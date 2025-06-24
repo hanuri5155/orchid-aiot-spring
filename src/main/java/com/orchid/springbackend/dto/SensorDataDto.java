@@ -3,6 +3,8 @@ package com.orchid.springbackend.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class SensorDataDto {
@@ -13,4 +15,5 @@ public class SensorDataDto {
     private double soilMoisture;
     private double soilEC;
     private double soilPH;
+    private LocalDateTime recordedAt; // 새로 추가된 필드
 }
