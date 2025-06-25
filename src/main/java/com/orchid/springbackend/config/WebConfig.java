@@ -1,7 +1,8 @@
-package com.orchid.springbackend.config; // ⭐ 본인의 프로젝트 패키지 구조에 맞게 변경하세요.
+package com.orchid.springbackend.config;
 
 import org.springframework.context.annotation.Configuration; // @Configuration 어노테이션을 사용하기 위해 임포트
 import org.springframework.web.servlet.config.annotation.CorsRegistry; // CORS 설정을 위한 CorsRegistry 클래스 임포트
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer; // 웹 MVC 설정을 커스터마이징하기 위한 인터페이스 임포트
 
 @Configuration
@@ -19,5 +20,12 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // /uploads/** → /home/ubuntu/uploads/ 경로의 실제 파일로 매핑
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:/home/ubuntu/uploads/");
     }
 }

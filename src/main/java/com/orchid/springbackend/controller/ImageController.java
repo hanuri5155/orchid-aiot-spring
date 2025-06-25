@@ -44,7 +44,6 @@ public class ImageController {
     // 웹에서 이미지를 직접 서빙할 때 사용할 기본 URL (nginx, Apache 등으로 /uploads 폴더를 웹 서빙하도록 설정해야 함)
     private static final String WEB_ACCESS_BASE_URL = "http://134.185.115.80:8080/uploads/"; // 웹에서 접근 가능한 이미지 URL의 기본 경로
 
-
     @Autowired // 생성자 주입 방식으로 WebClient, SimpMessagingTemplate 초기화
     public ImageController(ImageDataRepository imageDataRepository, SensorDataRepository sensorDataRepository,
                            WebClient.Builder webClientBuilder, SimpMessagingTemplate messagingTemplate) {

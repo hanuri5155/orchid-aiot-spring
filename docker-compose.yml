@@ -38,6 +38,7 @@ services:
       - orchid-net
     volumes:
       - gradle-cache:/home/gradle/.gradle
+      - /home/ubuntu/uploads:/home/ubuntu/uploads
     restart: always
 
 volumes:
