@@ -75,7 +75,7 @@ public class ImageController {
             imageDataRepository.save(imageData);
 
             System.out.println("DEBUG: Image uploaded and saved: " + uniqueFilename + " at " + fileUrl);
-            // ✅ 이미지 URL을 WebSocket으로 브로드캐스트 (실시간 업데이트) ⭐
+            // 이미지 URL을 WebSocket으로 브로드캐스트 (실시간 업데이트)
             // /topic/image 채널을 새로 만들거나, 기존 /topic/sensor를 활용할 수 있습니다.
             // 여기서는 /topic/image로 새로운 채널을 가정합니다.
             messagingTemplate.convertAndSend("/topic/image", Map.of("imageUrl", fileUrl));
@@ -91,20 +91,6 @@ public class ImageController {
                     "message", "업로드 실패",
                     "error", e.getMessage()
             ));
-        }
-    }
-
-
-    // --- 2. 최신 이미지 URL 조회 API (GET /api/image/latest-url) ---
-    // Flutter 앱에서 가장 최근에 업로드된 이미지를 화면에 표시하기 위해 사용
-    @GetMapping("/latest-url")
-    public ResponseEntity<Map<String, String>> getLatestImageUrl() {
-        Optional<ImageData> latestImageOptional = imageDataRepository.findTopByOrderByUploadedAtDesc();
-        if (latestImageOptional.isPresent()) {
-            ImageData latestImage = latestImageOptional.get();
-            return ResponseEntity.ok(Map.of("imageUrl", latestImage.getFileUrl()));
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("message", "이미지 없음."));
         }
     }
 
