@@ -17,5 +17,7 @@ public class ImageData {
 
     private String filename;
     private String filepath;
+    private String fileUrl;
+
     private LocalDateTime uploadedAt;
 }

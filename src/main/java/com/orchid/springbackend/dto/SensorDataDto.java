@@ -26,6 +26,9 @@ public class SensorDataDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private LocalDateTime lastLedOn;
 
+    private String diseaseName;     // 질병명
+    private String diseaseImageUrl; // 질병 이미지 URL
+
     private boolean alertSoilDry;
     private boolean alertLightLow;
 }

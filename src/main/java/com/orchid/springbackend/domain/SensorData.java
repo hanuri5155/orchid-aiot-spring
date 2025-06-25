@@ -32,6 +32,9 @@ public class SensorData {
     private boolean alertSoilDry;    // 토양 건조 경고
     private boolean alertLightLow;   // 빛 부족 경고
 
+    private String diseaseName;     // 질병명
+    private String diseaseImageUrl; // 질병 이미지 URL
+
     @PrePersist
     protected void onCreate() {
         this.recordedAt = LocalDateTime.now();
