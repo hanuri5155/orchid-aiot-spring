@@ -57,32 +57,39 @@ public class ImageController {
     // 하드웨어 (라즈베리파이)가 5분마다 이미지 파일을 보낼 때 사용
     // Flutter 앱에서도 수동으로 이미지 업로드 시 사용 가능 (예: 갤러리에서 선택)
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
-        String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename; // 고유 파일명
+        String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
         Path savePath = Paths.get(UPLOAD_DIR, uniqueFilename);
-        String fileUrl = WEB_ACCESS_BASE_URL + uniqueFilename; // 웹 접근 가능한 URL
+        String fileUrl = WEB_ACCESS_BASE_URL + uniqueFilename;
 
         try {
-            Files.createDirectories(savePath.getParent()); // 폴더 없으면 생성
-            Files.copy(file.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING); // 파일 저장
+            Files.createDirectories(savePath.getParent());
+            Files.copy(file.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // DB 저장
             ImageData imageData = new ImageData();
             imageData.setFilename(uniqueFilename);
             imageData.setFilepath(savePath.toString());
-            imageData.setFileUrl(fileUrl); // 웹 접근 URL 저장
+            imageData.setFileUrl(fileUrl);
             imageData.setUploadedAt(LocalDateTime.now());
             imageDataRepository.save(imageData);
 
             System.out.println("DEBUG: Image uploaded and saved: " + uniqueFilename + " at " + fileUrl);
-            return ResponseEntity.ok("업로드 성공: " + uniqueFilename);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "업로드 성공",
+                    "imageUrl", fileUrl
+            ));
 
         } catch (IOException e) {
             System.err.println("ERROR: Image upload failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "message", "업로드 실패",
+                    "error", e.getMessage()
+            ));
         }
     }
+
 
     // --- 2. 최신 이미지 URL 조회 API (GET /api/image/latest-url) ---
     // Flutter 앱에서 가장 최근에 업로드된 이미지를 화면에 표시하기 위해 사용
