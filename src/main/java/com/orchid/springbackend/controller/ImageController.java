@@ -75,6 +75,10 @@ public class ImageController {
             imageDataRepository.save(imageData);
 
             System.out.println("DEBUG: Image uploaded and saved: " + uniqueFilename + " at " + fileUrl);
+            // ✅ 이미지 URL을 WebSocket으로 브로드캐스트 (실시간 업데이트) ⭐
+            // /topic/image 채널을 새로 만들거나, 기존 /topic/sensor를 활용할 수 있습니다.
+            // 여기서는 /topic/image로 새로운 채널을 가정합니다.
+            messagingTemplate.convertAndSend("/topic/image", Map.of("imageUrl", fileUrl));
 
             return ResponseEntity.ok(Map.of(
                     "message", "업로드 성공",
