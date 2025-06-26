@@ -34,7 +34,7 @@ import java.util.stream.Collectors; // List<Object>를 List<String>으로 변환
 public class ImageController {
 
     private static final String UPLOAD_DIR = "/home/ubuntu/uploads"; // 이미지가 저장될 서버의 로컬 경로
-    private static final String FASTAPI_PREDICT_URL = "http://[FASTAPI_서버_IP_주소]:[FASTAPI_포트]/predict"; // FastAPI 서버 URL
+    private static final String FASTAPI_PREDICT_URL = "http://113.198.233.218:8000/predict"; // FastAPI 서버 URL
 
     private final ImageDataRepository imageDataRepository;
     private final SensorDataRepository sensorDataRepository;
