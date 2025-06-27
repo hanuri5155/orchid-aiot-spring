@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/plant_records") // 이 컨트롤러의 기본 경로
+@RequestMapping("/api/plant_records") // 캘린더 컨트롤러의 기본 경로
 public class PlantRecordController {
 
     private final PlantRecordRepository repository;
@@ -21,7 +21,7 @@ public class PlantRecordController {
         this.repository = repository;
     }
 
-    // --- 1. 모든 식물 기록 조회 (캘린더에 마커 표시) ---
+    // 모든 식물 기록 조회 (캘린더에 마커 표시) ---
     @GetMapping // GET /api/plant_records 요청 처리
     public ResponseEntity<List<PlantRecordDto>> getAllPlantRecords() {
         List<PlantRecord> records = repository.findAll();
@@ -29,7 +29,7 @@ public class PlantRecordController {
         return ResponseEntity.ok(dtos);
     }
 
-    // --- 2. 특정 날짜의 식물 기록 조회 ---
+    // 특정 날짜의 식물 기록 조회 ---
     @GetMapping("/{date}") // GET /api/plant_records/{date} 요청 처리 (예: /api/plant_records/2025-06-24)
     public ResponseEntity<PlantRecordDto> getPlantRecordByDate(@PathVariable("date") @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate date) {
         return repository.findByRecordDate(date)
@@ -38,10 +38,10 @@ public class PlantRecordController {
                 .orElse(ResponseEntity.notFound().build()); // 없으면 404 Not Found
     }
 
-    // --- 3. 식물 기록 추가/수정 (날짜가 이미 있으면 수정, 없으면 추가) ---
+    // 식물 기록 추가/수정 (날짜가 이미 있으면 수정, 없으면 추가) ---
     @PostMapping // POST /api/plant_records 요청 처리
     public ResponseEntity<PlantRecordDto> createOrUpdatePlantRecord(@RequestBody PlantRecordDto dto) {
-        // 해당 날짜의 기존 기록을 찾습니다.
+        // 해당 날짜의 기존 기록 조회.
         Optional<PlantRecord> existingRecordOptional = repository.findByRecordDate(dto.getRecordDate());
         PlantRecord record;
 

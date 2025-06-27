@@ -105,7 +105,6 @@ public class SensorDataController {
     }
 
     // 수동 LED 제어 명령 API (POST /api/sensor/control/led)
-    // LED 상태 (켜기/끄기)를 boolean 값으로 받음
     @PostMapping("/control/led")
     public ResponseEntity<String> controlLed(@RequestParam String deviceId, @RequestParam boolean state) {
         System.out.println("DEBUG: Received LED control command for device: " + deviceId + ", state: " + state);
